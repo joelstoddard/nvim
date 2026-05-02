@@ -8,13 +8,43 @@
 -- ================================================================================================
 
 local sops_patterns = {
+	-- generic "under a secrets directory" or named secrets.env
 	"*/secrets.env",
 	"*/secrets/*",
+
+	-- ansible vaults
 	"*vault*.yml",
 	"*vault*.yaml",
+
+	-- sops-explicit naming
+	"*.sops",
 	"*.sops.yaml",
 	"*.sops.yml",
 	"*.sops.json",
+	"*.sops.env",
+	"*.sops.ini",
+	"*.sops.toml",
+
+	-- "encrypted" naming convention
+	"*.enc.yaml",
+	"*.enc.yml",
+	"*.enc.json",
+	"*.enc.env",
+
+	-- kubernetes/helm secret manifests and values files
+	"*secret*.yaml",
+	"*secret*.yml",
+	"*secret*.json",
+	"*secret*.env",
+
+	-- credentials files (gcp service accounts, aws creds, etc.)
+	"*credentials*.json",
+	"*credentials*.yaml",
+	"*credentials*.yml",
+
+	-- terraform tfvars with secrets
+	"secrets.tfvars",
+	"*.secret.tfvars",
 }
 
 vim.api.nvim_create_autocmd({ "BufReadPre", "BufNewFile" }, {
