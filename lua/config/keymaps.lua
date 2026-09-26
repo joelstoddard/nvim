@@ -34,6 +34,12 @@ vim.keymap.set("v", ">", ">gv", { desc = "Indent right and reselect" })
 -- Better J behavior
 vim.keymap.set("n", "J", "mzJ`z", { desc = "Join lines and keep cursor position" })
 
+-- Toggle comments with Ctrl+/ (some terminals send it as <C-_>)
+for _, lhs in ipairs({ "<C-/>", "<C-_>" }) do
+    vim.keymap.set("n", lhs, "gcc", { remap = true, desc = "Toggle comment" })
+    vim.keymap.set("x", lhs, "gc", { remap = true, desc = "Toggle comment" })
+end
+
 -- Quick config editing
 vim.keymap.set("n", "<leader>rc", "<Cmd>e ~/.config/nvim/init.lua<CR>", { desc = "Edit config" })
 
