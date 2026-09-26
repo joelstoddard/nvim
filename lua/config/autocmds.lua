@@ -30,6 +30,17 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	end,
 })
 
+-- Wrap long lines at word boundaries in markdown files
+local markdown_wrap_group = vim.api.nvim_create_augroup("MarkdownWrap", {})
+vim.api.nvim_create_autocmd("FileType", {
+	group = markdown_wrap_group,
+	pattern = "markdown",
+	callback = function()
+		vim.opt_local.wrap = true
+		vim.opt_local.linebreak = true
+	end,
+})
+
 -- format on save using efm langserver and configured formatters
 local lsp_fmt_group = vim.api.nvim_create_augroup("FormatOnSaveGroup", {})
 vim.api.nvim_create_autocmd("BufWritePre", {

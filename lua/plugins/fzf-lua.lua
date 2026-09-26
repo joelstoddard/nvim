@@ -8,7 +8,6 @@
 return {
 	"ibhagwan/fzf-lua",
 	lazy = false,
-	dependencies = { "nvim-tree/nvim-web-devicons" },
 	keys = {
 		{
 			"<leader>ff",
@@ -51,20 +50,6 @@ return {
 				require("fzf-lua").diagnostics_workspace()
 			end,
 			desc = "FZF Diagnostics Workspace",
-		},
-		{
-			"<leader>fs",
-			function()
-				require("fzf-lua").lsp_document_symbols()
-			end,
-			desc = "FZF Document Symbols",
-		},
-		{
-			"<leader>fS",
-			function()
-				require("fzf-lua").lsp_workspace_symbols()
-			end,
-			desc = "FZF Workspace Symbols",
 		},
 	},
 
