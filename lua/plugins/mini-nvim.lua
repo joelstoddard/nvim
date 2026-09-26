@@ -12,7 +12,8 @@ return {
 	-- Loads after the colorscheme (1000) and before plugins that ask for nvim-web-devicons.
 	priority = 900,
 	config = function()
-		require("mini.ai").setup()
+		-- Leaves an/in to nvim 0.12's treesitter selection. a/i objects still reach the next match (cover_or_next).
+		require("mini.ai").setup({ mappings = { around_next = "", inside_next = "" } })
 		require("mini.comment").setup()
 		require("mini.surround").setup()
 		require("mini.cursorword").setup()

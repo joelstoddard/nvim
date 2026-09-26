@@ -12,7 +12,7 @@
   "nvim-lspconfig": { "branch": "master", "commit": "2010fc6ec03e2da552b4886fceb2f7bc0fc2e9c0" },
   "nvim-sops": { "branch": "main", "commit": "1791eec21e78c9736ae504f02712a2f509c69b2c" },
   "nvim-tree.lua": { "branch": "master", "commit": "68c67adfabfd1ce923839570507ef2e81ab8a408" },
-  "nvim-treesitter": { "branch": "main", "commit": "42fc28ba918343ebfd5565147a42a26580579482" },
+  "nvim-treesitter": { "branch": "main", "commit": "25a9b06a09ea4e10712bec37e7b7d9f423262b91" },
   "schemastore.nvim": { "branch": "main", "commit": "01fde7d0be29913dd57ad108139a28ec3efdcd0e" },
   "trouble.nvim": { "branch": "main", "commit": "bd67efe408d4816e25e8491cc5ad4088e708a69a" },
   "vim-tmux-navigator": { "branch": "master", "commit": "c45243dc1f32ac6bcf6068e5300f3b2b237e576a" },
