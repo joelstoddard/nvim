@@ -66,6 +66,24 @@ require("mini.trailspace").setup()
 require("mini.bufremove").setup()
 require("mini.notify").setup()
 
+local sessions = require("mini.sessions")
+sessions.setup()
+-- mini.sessions' own autoread warns on every start without a session, so restore ./Session.vim only if it exists.
+vim.api.nvim_create_autocmd("VimEnter", {
+	group = vim.api.nvim_create_augroup("LocalSessionRead", { clear = true }),
+	nested = true,
+	once = true,
+	callback = function()
+		local empty_start = vim.fn.argc() == 0 and vim.api.nvim_buf_line_count(0) == 1 and vim.fn.getline(1) == ""
+		if empty_start and sessions.detected[sessions.config.file] then
+			sessions.read(sessions.config.file)
+		end
+	end,
+})
+vim.keymap.set("n", "<leader>ws", function()
+	sessions.write(sessions.config.file)
+end, { desc = "Write local session (Session.vim)" })
+
 local icons = require("mini.icons")
 icons.setup()
 icons.mock_nvim_web_devicons()
