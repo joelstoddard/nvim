@@ -3,6 +3,10 @@
 -- ABOUT: sets some quality-of-life keymaps
 -- ================================================================================================
 
+-- Leader keys first, so every mapping below and in plugins sees them
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+
 -- Center screen when jumping
 vim.keymap.set("n", "n", "nzzzv", { desc = "Next search result (centered)" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "Previous search result (centered)" })
@@ -47,7 +51,7 @@ vim.keymap.set("n", "<leader>rc", "<Cmd>e ~/.config/nvim/init.lua<CR>", { desc =
 vim.keymap.set("n", "<leader>m", "<Cmd>NvimTreeFocus<CR>", { desc = "Focus on File Explorer" })
 vim.keymap.set("n", "<leader>e", "<Cmd>NvimTreeToggle<CR>", { desc = "Toggle File Explorer" })
 
--- Undo tree is built into nvim 0.12. The packadd runs on keypress because lazy.nvim resets the runtimepath at startup.
+-- Undo tree is built into nvim 0.12; packadd on first use keeps it out of startup.
 vim.keymap.set("n", "<leader>u", function()
     vim.cmd.packadd("nvim.undotree")
     require("undotree").open()
