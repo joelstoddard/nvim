@@ -28,36 +28,28 @@ local function has_query(lang, name)
 	return ok and query ~= nil
 end
 
-return {
-	"nvim-treesitter/nvim-treesitter",
-	branch = "main",
-	build = ":TSUpdate",
-	lazy = false, -- the main branch does not support lazy-loading
-	config = function()
-		require("nvim-treesitter").install(parsers)
+require("nvim-treesitter").install(parsers)
 
-		vim.api.nvim_create_autocmd("FileType", {
-			group = vim.api.nvim_create_augroup("TreesitterStart", { clear = true }),
-			callback = function(args)
-				local lang = vim.treesitter.language.get_lang(args.match)
-				-- A parser without highlight queries (e.g. left behind by the master branch) would blank the buffer.
-				if not lang or not vim.treesitter.language.add(lang) or not has_query(lang, "highlights") then
-					return
-				end
-				vim.treesitter.start(args.buf, lang)
-				-- nvim-treesitter's indentexpr returns 0 for every line when a language has no indents query.
-				if has_query(lang, "indents") then
-					vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-				end
+vim.api.nvim_create_autocmd("FileType", {
+	group = vim.api.nvim_create_augroup("TreesitterStart", { clear = true }),
+	callback = function(args)
+		local lang = vim.treesitter.language.get_lang(args.match)
+		-- A parser without highlight queries (e.g. left behind by the master branch) would blank the buffer.
+		if not lang or not vim.treesitter.language.add(lang) or not has_query(lang, "highlights") then
+			return
+		end
+		vim.treesitter.start(args.buf, lang)
+		-- nvim-treesitter's indentexpr returns 0 for every line when a language has no indents query.
+		if has_query(lang, "indents") then
+			vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+		end
 
-				-- Selection uses nvim 0.12's built-in an/in. They are Lua maps, so these need remap.
-				local function map(mode, lhs, rhs, desc)
-					vim.keymap.set(mode, lhs, rhs, { buffer = args.buf, remap = true, desc = desc })
-				end
-				map("n", "<CR>", "van", "Start treesitter selection")
-				map("x", "<CR>", "an", "Grow treesitter selection")
-				map("x", "<S-Tab>", "in", "Shrink treesitter selection")
-			end,
-		})
+		-- Selection uses nvim 0.12's built-in an/in. They are Lua maps, so these need remap.
+		local function map(mode, lhs, rhs, desc)
+			vim.keymap.set(mode, lhs, rhs, { buffer = args.buf, remap = true, desc = desc })
+		end
+		map("n", "<CR>", "van", "Start treesitter selection")
+		map("x", "<CR>", "an", "Grow treesitter selection")
+		map("x", "<S-Tab>", "in", "Shrink treesitter selection")
 	end,
-}
+})

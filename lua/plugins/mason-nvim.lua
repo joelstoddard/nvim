@@ -1,7 +1,8 @@
 -- ================================================================================================
--- TITLE : globals
--- ABOUT : you may have different global & local leaders
+-- TITLE : mason.nvim
+-- ABOUT : installer and manager for LSP servers, linters and formatters.
+-- LINKS :
+--   > github : https://github.com/mason-org/mason.nvim
 -- ================================================================================================
 
-vim.g.mapleader = " "
-vim.g.maplocalleader = " "
+require("mason").setup({})

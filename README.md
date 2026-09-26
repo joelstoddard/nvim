@@ -20,6 +20,15 @@ Features support for language:
 - `terraform`
 - `yaml`
 
+## Requirements
+
+- Neovim 0.12 or later (plugins install through the built-in `vim.pack`)
+- `tree-sitter` CLI 0.26.1 or later, a C compiler, `curl` and `tar` (to build treesitter parsers)
+- `git`, `ripgrep` and `fzf`
+- A [Nerd Font](https://www.nerdfonts.com/)
+
+The first start installs every plugin and asks for confirmation. Update later with `:lua vim.pack.update()`.
+
 ## License
 
 This config is released under GPLv3.
