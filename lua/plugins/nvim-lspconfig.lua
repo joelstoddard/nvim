@@ -16,7 +16,6 @@ return {
 		"saghen/blink.cmp", -- completion capabilities for every server
 	},
 	config = function()
-		require("utils.diagnostics").setup()
-		require("servers")
+		require("config.lsp")
 	end,
 }
