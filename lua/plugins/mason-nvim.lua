@@ -6,3 +6,7 @@
 -- ================================================================================================
 
 require("mason").setup({})
+-- Scheduled so loading Mason's registry stays out of startup.
+vim.schedule(function()
+	require("languages").install_missing(require("mason-registry"))
+end)
