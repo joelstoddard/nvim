@@ -104,105 +104,16 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
 -- Servers ---------------------------------------------------------------------------------------
 -- blink.cmp registers its completion capabilities on vim.lsp.config("*"), so no server repeats them.
-vim.lsp.config("lua_ls", {
-	settings = {
-		Lua = {
-			diagnostics = {
-				globals = { "vim" },
-			},
-			workspace = {
-				library = {
-					vim.fn.expand("$VIMRUNTIME/lua"),
-					vim.fn.expand("$XDG_CONFIG_HOME") .. "/nvim/lua",
-				},
-			},
-		},
-	},
-})
-
-vim.lsp.config("pyright", {
-	settings = {
-		pyright = {
-			disableOrganizeImports = false,
-			analysis = {
-				useLibraryCodeForTypes = true,
-				autoSearchPaths = true,
-				diagnosticMode = "workspace",
-				autoImportCompletions = true,
-			},
-		},
-	},
-})
-
-vim.lsp.config("gopls", { filetypes = { "go" } })
-vim.lsp.config("jsonls", { filetypes = { "json", "jsonc" } })
-vim.lsp.config("ts_ls", {
-	filetypes = { "typescript", "javascript", "typescriptreact", "javascriptreact" },
-	settings = {
-		typescript = {
-			indentStyle = "space",
-			indentSize = 2,
-		},
-	},
-})
-vim.lsp.config("bashls", { filetypes = { "sh", "bash", "zsh" } })
-vim.lsp.config("dockerls", { filetypes = { "dockerfile" } })
-vim.lsp.config("yamlls", {
-	settings = {
-		yaml = {
-			schemastore = {
-				enable = false,
-				url = "",
-			},
-			schemas = require("schemastore").yaml.schemas(),
-			validate = true,
-			format = {
-				enable = true,
-			},
-		},
-	},
-	filetypes = { "yaml" },
-})
-vim.lsp.config("tailwindcss", {
-	filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
-})
+local languages = require("languages")
+local servers = languages.servers()
+for name, config in pairs(servers) do
+	vim.lsp.config(name, config)
+end
 
 -- Linters & formatters (efm) --------------------------------------------------------------------
-local luacheck = require("efmls-configs.linters.luacheck") -- lua linter
-local stylua = require("efmls-configs.formatters.stylua") -- lua formatter
-local flake8 = require("efmls-configs.linters.flake8") -- python linter
-local black = require("efmls-configs.formatters.black") -- python formatter
-local go_revive = require("efmls-configs.linters.go_revive") -- go linter
-local gofumpt = require("efmls-configs.formatters.gofumpt") -- go formatter
-local prettier_d = require("efmls-configs.formatters.prettier_d") -- ts/js/solidity/json/docker/html/css/react/svelte/vue formatter
-local eslint_d = require("efmls-configs.linters.eslint_d") -- ts/js/solidity/json/react/svelte/vue linter
-local fixjson = require("efmls-configs.formatters.fixjson") -- json formatter
-local shellcheck = require("efmls-configs.linters.shellcheck") -- bash linter
-local shfmt = require("efmls-configs.formatters.shfmt") -- bash formatter
-local hadolint = require("efmls-configs.linters.hadolint") -- docker linter
-local cpplint = require("efmls-configs.linters.cpplint") -- c/cpp linter
-local clangformat = require("efmls-configs.formatters.clang_format") -- c/cpp formatter
-local solhint = require("efmls-configs.linters.solhint") -- solidity linter
-
+local efm_languages = languages.efm()
 vim.lsp.config("efm", {
-	filetypes = {
-		"sh",
-		"css",
-		"docker",
-		"go",
-		"html",
-		"javascript",
-		"javascriptreact",
-		"json",
-		"jsonc",
-		"lua",
-		"markdown",
-		"python",
-		"typescript",
-		"typescriptreact",
-		"yaml",
-		"terraform",
-	},
+	filetypes = vim.tbl_keys(efm_languages),
 	init_options = {
 		documentFormatting = true,
 		documentRangeFormatting = true,
@@ -211,40 +122,7 @@ vim.lsp.config("efm", {
 		codeAction = true,
 		completion = true,
 	},
-	settings = {
-		languages = {
-			c = { clangformat, cpplint },
-			cpp = { clangformat, cpplint },
-			css = { prettier_d },
-			docker = { hadolint, prettier_d },
-			go = { gofumpt, go_revive },
-			html = { prettier_d },
-			javascript = { eslint_d, prettier_d },
-			javascriptreact = { eslint_d, prettier_d },
-			json = { eslint_d, fixjson },
-			jsonc = { eslint_d, fixjson },
-			lua = { luacheck, stylua },
-			markdown = { prettier_d },
-			python = { flake8, black },
-			sh = { shellcheck, shfmt },
-			solidity = { solhint, prettier_d },
-			svelte = { eslint_d, prettier_d },
-			typescript = { eslint_d, prettier_d },
-			typescriptreact = { eslint_d, prettier_d },
-			vue = { eslint_d, prettier_d },
-		},
-	},
+	settings = { languages = efm_languages },
 })
 
-vim.lsp.enable({
-	"lua_ls",
-	"pyright",
-	"gopls",
-	"jsonls",
-	"ts_ls",
-	"bashls",
-	"dockerls",
-	"yamlls",
-	"tailwindcss",
-	"efm",
-})
+vim.lsp.enable(vim.list_extend(vim.tbl_keys(servers), { "efm" }))
