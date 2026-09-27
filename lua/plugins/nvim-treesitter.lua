@@ -5,30 +5,12 @@
 --   > github : https://github.com/nvim-treesitter/nvim-treesitter
 -- ================================================================================================
 
--- language parsers that MUST be installed
-local parsers = {
-	"bash",
-	"css",
-	"dockerfile",
-	"go",
-	"html",
-	"javascript",
-	"json",
-	"lua",
-	"markdown",
-	"markdown_inline",
-	"python",
-	"typescript",
-	"yaml",
-	"terraform",
-}
-
 local function has_query(lang, name)
 	local ok, query = pcall(vim.treesitter.query.get, lang, name)
 	return ok and query ~= nil
 end
 
-require("nvim-treesitter").install(parsers)
+require("nvim-treesitter").install(require("languages").parsers())
 
 vim.api.nvim_create_autocmd("FileType", {
 	group = vim.api.nvim_create_augroup("TreesitterStart", { clear = true }),

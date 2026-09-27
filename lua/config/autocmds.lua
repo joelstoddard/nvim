@@ -40,7 +40,7 @@ vim.api.nvim_create_autocmd("FileType", {
 	end,
 })
 
--- Format on save with efm. Synchronous, so the edits land before the file is written.
+-- Format on save with the language's formatter (efm or its server). Synchronous, so edits land before the write.
 local lsp_fmt_group = vim.api.nvim_create_augroup("FormatOnSaveGroup", {})
 vim.api.nvim_create_autocmd("BufWritePre", {
 	group = lsp_fmt_group,
@@ -49,9 +49,10 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 		if bo.buftype ~= "" or not bo.modifiable or vim.api.nvim_buf_get_name(args.buf) == "" then
 			return
 		end
-		if vim.tbl_isempty(vim.lsp.get_clients({ bufnr = args.buf, name = "efm" })) then
+		local client = require("languages").formatter(bo.filetype)
+		if not client or vim.tbl_isempty(vim.lsp.get_clients({ bufnr = args.buf, name = client })) then
 			return
 		end
-		pcall(vim.lsp.buf.format, { bufnr = args.buf, name = "efm", timeout_ms = 2000 })
+		pcall(vim.lsp.buf.format, { bufnr = args.buf, name = client, timeout_ms = 2000 })
 	end,
 })
