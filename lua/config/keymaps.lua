@@ -48,7 +48,9 @@ for _, lhs in ipairs({ "<C-/>", "<C-_>" }) do
 end
 
 -- Quick config editing
-vim.keymap.set("n", "<leader>rc", "<Cmd>e ~/.config/nvim/init.lua<CR>", { desc = "Edit config" })
+vim.keymap.set("n", "<leader>rc", function()
+	vim.cmd.edit(vim.fn.fnameescape(vim.fn.stdpath("config") .. "/init.lua"))
+end, { desc = "Edit config" })
 
 -- File Explorer
 vim.keymap.set("n", "<leader>m", "<Cmd>NvimTreeFocus<CR>", { desc = "Focus on File Explorer" })
