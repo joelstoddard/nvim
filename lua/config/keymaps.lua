@@ -55,7 +55,7 @@ end
 
 -- Quick config editing
 vim.keymap.set("n", "<leader>rc", function()
-	vim.cmd.edit(vim.fn.fnameescape(vim.fn.stdpath("config") .. "/init.lua"))
+    vim.cmd.edit(vim.fn.fnameescape(vim.fn.stdpath("config") .. "/init.lua"))
 end, { desc = "Edit config" })
 
 -- File Explorer
