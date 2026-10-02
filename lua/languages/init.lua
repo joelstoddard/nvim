@@ -92,7 +92,8 @@ function M.efm()
 	for _, lang in ipairs(all()) do
 		local tools = {}
 		for _, entry in ipairs(lang.lint or {}) do
-			table.insert(tools, tool("linters", entry))
+			-- efm otherwise lints only after the first change. A copy keeps the shared efmls-configs table intact.
+			table.insert(tools, vim.tbl_extend("force", tool("linters", entry), { lintAfterOpen = true }))
 		end
 		for _, entry in ipairs(lang.format or {}) do
 			table.insert(tools, tool("formatters", entry))
