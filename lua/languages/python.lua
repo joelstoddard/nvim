@@ -8,6 +8,7 @@
 local ruff = require("efmls-configs.linters.ruff")
 return {
 	filetypes = { "python" },
+	line_length = 88, -- ruff format's line length
 	parsers = { "python" },
 	servers = {
 		pyright = {

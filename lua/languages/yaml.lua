@@ -10,6 +10,7 @@ local yamllint_config = ("{extends: default, rules: {document-start: disable, li
 
 return {
 	filetypes = { "yaml" },
+	line_length = line_length,
 	parsers = { "yaml" },
 	servers = {
 		yamlls = {

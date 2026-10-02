@@ -57,6 +57,7 @@ end
 
 --- Filetype rules and parser aliases; call once from init.lua after plugins are added.
 function M.setup()
+	local line_lengths = {}
 	for _, lang in ipairs(all()) do
 		if lang.detect then
 			vim.filetype.add(lang.detect)
@@ -64,7 +65,17 @@ function M.setup()
 		for parser, filetypes in pairs(lang.register or {}) do
 			vim.treesitter.language.register(parser, filetypes)
 		end
+		for _, ft in ipairs(lang.line_length and lang.filetypes or {}) do
+			line_lengths[ft] = lang.line_length
+		end
 	end
+	-- colorcolumn is window-local and survives a buffer switch, so every filetype sets it, empty when it has no limit.
+	vim.api.nvim_create_autocmd("FileType", {
+		group = vim.api.nvim_create_augroup("LanguageLineLength", { clear = true }),
+		callback = function(args)
+			vim.opt_local.colorcolumn = line_lengths[args.match] and tostring(line_lengths[args.match]) or ""
+		end,
+	})
 end
 
 function M.parsers()

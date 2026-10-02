@@ -5,6 +5,7 @@
 
 return {
 	filetypes = { "typescript", "typescriptreact" },
+	line_length = 80, -- prettier's print width
 	parsers = { "typescript", "tsx" },
 	servers = {
 		ts_ls = {

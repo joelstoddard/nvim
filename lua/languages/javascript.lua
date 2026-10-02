@@ -7,6 +7,7 @@
 local eslint = require("efmls-configs.linters.eslint_d")
 return {
 	filetypes = { "javascript", "javascriptreact" },
+	line_length = 80, -- prettier's print width
 	parsers = { "javascript" },
 	lint = { vim.tbl_extend("force", eslint, { lintCommand = eslint.lintCommand .. " --no-warn-ignored" }) },
 	format = { "prettier_d" },
