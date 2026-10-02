@@ -17,7 +17,7 @@ return {
 			},
 		},
 	},
-	lint = { "eslint_d" },
+	lint = require("languages.javascript").lint,
 	format = { "prettier_d" },
 	mason = { "typescript-language-server", "eslint_d", "prettierd" },
 }
