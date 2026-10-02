@@ -34,6 +34,12 @@ vim.keymap.set({ "n", "x", "o" }, "<" .. word_mod .. "-Right>", "w", { desc = "N
 vim.keymap.set("i", "<" .. word_mod .. "-Left>", "<S-Left>", { desc = "Previous word" })
 vim.keymap.set("i", "<" .. word_mod .. "-Right>", "<S-Right>", { desc = "Next word" })
 
+-- Delete the previous word with the same modifier. Terminals without the kitty keyboard protocol send Ctrl+Backspace as Ctrl+h.
+local word_delete_keys = vim.fn.has("mac") == 1 and { "<M-BS>" } or { "<C-BS>", "<C-h>" }
+for _, lhs in ipairs(word_delete_keys) do
+    vim.keymap.set({ "i", "c" }, lhs, "<C-w>", { desc = "Delete previous word" })
+end
+
 -- Better indenting in visual mode
 vim.keymap.set("v", "<", "<gv", { desc = "Indent left and reselect" })
 vim.keymap.set("v", ">", ">gv", { desc = "Indent right and reselect" })
