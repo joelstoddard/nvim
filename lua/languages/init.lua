@@ -131,10 +131,21 @@ function M.formatter(filetype)
 	end
 end
 
+-- Mason counts any package directory as installed. An interrupted install leaves a directory without a receipt,
+-- which Mason never retries.
+local function half_built(pkg)
+	return pkg:is_installed() and vim.uv.fs_stat(vim.fs.joinpath(pkg:get_install_path(), "mason-receipt.json")) == nil
+end
+
 --- Installs missing Mason packages in the background and reports failures in one warning.
 function M.install_missing(registry)
 	-- Mason can run this callback off the main loop (e.g. after a failed refresh).
-	registry.refresh(vim.schedule_wrap(function()
+	registry.refresh(vim.schedule_wrap(function(refreshed)
+		-- A failed refresh leaves an empty registry, which would list every package as unknown.
+		if not refreshed then
+			vim.notify("Mason could not refresh its registry; missing packages will install on a later start.", vim.log.levels.WARN)
+			return
+		end
 		local pending, failed, scanning, reported = 0, {}, true, false
 		-- Installs can finish before the loop ends, so report only once the loop is done and nothing is pending.
 		local function report()
@@ -151,9 +162,10 @@ function M.install_missing(registry)
 				table.insert(failed, name .. " (unknown)")
 			else
 				local pkg = registry.get_package(name)
-				if not pkg:is_installed() and not pkg:is_installing() then
+				local force = half_built(pkg)
+				if (force or not pkg:is_installed()) and not pkg:is_installing() then
 					pending = pending + 1
-					pkg:install({}, function(success)
+					pkg:install({ force = force }, function(success)
 						pending = pending - 1
 						if not success then
 							table.insert(failed, name)
