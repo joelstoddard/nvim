@@ -20,6 +20,8 @@ local function minidiff_counts()
 	end
 end
 
+local filename = { "filename", path = 1 }
+
 require("lualine").setup({
 	options = {
 		icons_enabled = true,
@@ -29,6 +31,7 @@ require("lualine").setup({
 		component_separators = "",
 	},
 	sections = {
+		lualine_a = { "mode" },
 		lualine_b = {
 			{ "branch", color = { fg = palette.orange } },
 			{
@@ -48,5 +51,27 @@ require("lualine").setup({
 				symbols = { error = "\u{f057} ", warn = "\u{f071} ", info = "\u{f05a} ", hint = "\u{ea61} " },
 			},
 		},
+		lualine_c = { filename },
+		-- Only an unusual encoding or line ending needs attention, so utf-8 and unix stay hidden.
+		lualine_x = {
+			{
+				"encoding",
+				cond = function()
+					return vim.bo.fileencoding ~= "" and vim.bo.fileencoding ~= "utf-8"
+				end,
+			},
+			{
+				"fileformat",
+				cond = function()
+					return vim.bo.fileformat ~= "unix"
+				end,
+			},
+			"filetype",
+		},
+		lualine_y = {},
+		lualine_z = { "location" },
+	},
+	inactive_sections = {
+		lualine_c = { filename },
 	},
 })
