@@ -6,9 +6,12 @@
 -- ================================================================================================
 
 -- Colour comes from the dotfiles ash-plus palette (theme/palette.yaml) and git's color.diff, so nvim matches the
--- terminal, tmux and git. Everything else keeps ash's greys.
+-- terminal, tmux and git. The statusline (lualine-nvim.lua) uses this palette too.
 local c = {
 	bg = "#121212",
+	muted = "#8a8a8a",
+	dim = "#626262",
+	orange = "#F79625",
 	red = "#AC4242",
 	yellow = "#FFDE57",
 	green = "#90A959",
@@ -60,3 +63,5 @@ require("ash").setup({
 	highlights = highlights,
 })
 vim.cmd.colorscheme("ash")
+
+return c
