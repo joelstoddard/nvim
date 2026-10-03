@@ -35,7 +35,7 @@ vim.keymap.set("i", "<" .. word_mod .. "-Right>", "<S-Right>", { desc = "Next wo
 -- Delete the previous word with the same modifier. Terminals without the kitty keyboard protocol send Ctrl+Backspace as Ctrl+h.
 local word_delete_keys = vim.fn.has("mac") == 1 and { "<M-BS>" } or { "<C-BS>", "<C-h>" }
 for _, lhs in ipairs(word_delete_keys) do
-    vim.keymap.set({ "i", "c" }, lhs, "<C-w>", { desc = "Delete previous word" })
+	vim.keymap.set({ "i", "c" }, lhs, "<C-w>", { desc = "Delete previous word" })
 end
 
 -- Better indenting in visual mode
@@ -47,13 +47,13 @@ vim.keymap.set("n", "J", "mzJ`z", { desc = "Join lines and keep cursor position"
 
 -- Toggle comments with Ctrl+/ (some terminals send it as <C-_>)
 for _, lhs in ipairs({ "<C-/>", "<C-_>" }) do
-    vim.keymap.set("n", lhs, "gcc", { remap = true, desc = "Toggle comment" })
-    vim.keymap.set("x", lhs, "gc", { remap = true, desc = "Toggle comment" })
+	vim.keymap.set("n", lhs, "gcc", { remap = true, desc = "Toggle comment" })
+	vim.keymap.set("x", lhs, "gc", { remap = true, desc = "Toggle comment" })
 end
 
 -- Quick config editing
 vim.keymap.set("n", "<leader>rc", function()
-    vim.cmd.edit(vim.fn.fnameescape(vim.fn.stdpath("config") .. "/init.lua"))
+	vim.cmd.edit(vim.fn.fnameescape(vim.fn.stdpath("config") .. "/init.lua"))
 end, { desc = "Edit config" })
 
 -- File Explorer
@@ -62,24 +62,19 @@ vim.keymap.set("n", "<leader>e", "<Cmd>NvimTreeToggle<CR>", { desc = "Toggle Fil
 
 -- Undo tree is built into nvim 0.12; packadd on first use keeps it out of startup.
 vim.keymap.set("n", "<leader>u", function()
-    vim.cmd.packadd("nvim.undotree")
-    require("undotree").open()
+	vim.cmd.packadd("nvim.undotree")
+	require("undotree").open()
 end, { desc = "Toggle undo tree" })
 
 -- The Primeagen keymaps
-vim.keymap.set({"n", "v"}, "<leader>d", [["_d]], { desc = "Delete without yanking" })
+vim.keymap.set({ "n", "v" }, "<leader>d", [["_d]], { desc = "Delete without yanking" })
 vim.keymap.set(
-    "n",
-    "<leader>s",
-    [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
-    { desc = "Replace word under cursor" }
+	"n",
+	"<leader>s",
+	[[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
+	{ desc = "Replace word under cursor" }
 )
-vim.keymap.set(
-    "n",
-    "<leader>X",
-    "<cmd>!chmod +x %<CR>",
-    {
-        silent = true,
-        desc = "Make current file executable"
-    }
-)
+vim.keymap.set("n", "<leader>X", "<cmd>!chmod +x %<CR>", {
+	silent = true,
+	desc = "Make current file executable",
+})

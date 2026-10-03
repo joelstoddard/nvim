@@ -43,7 +43,13 @@ vim.api.nvim_set_decoration_provider(ns, {
 			width = vim.bo[buf].tabstop
 		end
 		for _, band in ipairs(line and M.bands(line, width, vim.bo[buf].tabstop) or {}) do
-			vim.api.nvim_buf_set_extmark(buf, ns, row, band[1], { end_col = band[2], hl_group = band[3], ephemeral = true })
+			vim.api.nvim_buf_set_extmark(
+				buf,
+				ns,
+				row,
+				band[1],
+				{ end_col = band[2], hl_group = band[3], ephemeral = true }
+			)
 		end
 	end,
 })
