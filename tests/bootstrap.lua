@@ -104,13 +104,23 @@ end
 -- still fails to load. force is needed because install() counts a language as installed once its queries exist.
 local parsers = languages.parsers()
 local function missing_parsers()
+	-- A failed language.add() keeps failing in this process, even after the parser file appears, until
+	-- runtimepath changes.
+	vim.o.runtimepath = vim.o.runtimepath
 	local missing = {}
 	for _, lang in ipairs(parsers) do
-		if not vim.treesitter.language.add(lang) then
-			table.insert(missing, lang)
+		local ok, err = vim.treesitter.language.add(lang)
+		if not ok then
+			table.insert(missing, { lang = lang, err = err })
 		end
 	end
 	return missing
+end
+
+local function parser_names(missing)
+	return vim.tbl_map(function(m)
+		return m.lang
+	end, missing)
 end
 
 local ok, done = true, true
@@ -120,7 +130,9 @@ for _ = 1, 3 do
 		break
 	end
 	ok, done = pcall(function()
-		return require("nvim-treesitter").install(still_missing_parsers, { force = true }):wait(remaining())
+		return require("nvim-treesitter")
+			.install(parser_names(still_missing_parsers), { force = true })
+			:wait(remaining())
 	end)
 	if not ok then
 		break
@@ -129,7 +141,13 @@ for _ = 1, 3 do
 end
 if not ok or #still_missing_parsers > 0 then
 	local reason = not ok and tostring(done) .. "; " or not done and "timed out; " or ""
-	fail("parsers", reason .. "missing: " .. table.concat(still_missing_parsers, ", "))
+	local detail = table.concat(
+		vim.tbl_map(function(m)
+			return ("%s (%s)"):format(m.lang, m.err)
+		end, still_missing_parsers),
+		", "
+	)
+	fail("parsers", reason .. "missing: " .. detail)
 end
 io.stdout:write("bootstrap: parsers ready\n")
 
