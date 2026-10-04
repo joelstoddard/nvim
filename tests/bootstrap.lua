@@ -91,6 +91,15 @@ if not synced or #off > 0 then
 end
 io.stdout:write("bootstrap: plugins on the lockfile\n")
 
+if updating then
+	local updated, update_err = pcall(vim.pack.update, nil, { force = true })
+	local stale = off_lock(read_lock(lock_path))
+	if not updated or #stale > 0 then
+		fail("update", sync_detail(updated, update_err, stale))
+	end
+	io.stdout:write("bootstrap: plugins updated\n")
+end
+
 -- A second install() stops waiting on the config's startup install after 60 s, so this retries each parser that
 -- still fails to load. force is needed because install() counts a language as installed once its queries exist.
 local parsers = languages.parsers()

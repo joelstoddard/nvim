@@ -1,7 +1,13 @@
 #!/bin/sh
 # Runs the test suite on this checkout's config, with plugins and tools from a separate install in nvim-test's
-# data folder. Usage: sh tests/run.sh [tests/test_<area>.lua]
+# data folder. Usage: sh tests/run.sh [--update] [tests/test_<area>.lua]
 set -eu
+
+update=0
+if [ "${1:-}" = "--update" ]; then
+	update=1
+	shift
+fi
 
 root=$(cd "$(dirname "$0")/.." && pwd)
 tmp=$(mktemp -d)
@@ -11,7 +17,7 @@ data="${XDG_DATA_HOME:-$HOME/.local/share}/nvim-test"
 mkdir -p "$tmp/config/nvim-test" "$tmp/state" "$tmp/cache" "$tmp/work"
 # A copy, not a link: vim.pack writes this file, and a normal run must never change the committed lockfile.
 cp "$root/nvim-pack-lock.json" "$tmp/config/nvim-test/nvim-pack-lock.json"
-export NVIM_APPNAME=nvim-test NVIM_TEST_ROOT="$root" NVIM_TEST_DATA="$data"
+export NVIM_APPNAME=nvim-test NVIM_TEST_ROOT="$root" NVIM_TEST_DATA="$data" NVIM_TEST_UPDATE="$update"
 export XDG_CONFIG_HOME="$tmp/config" XDG_STATE_HOME="$tmp/state" XDG_CACHE_HOME="$tmp/cache"
 
 # An uncaught Lua error in a -c command leaves headless nvim running instead of exiting. pcall and cquit turn that
@@ -23,6 +29,11 @@ bootstrap='local ok, err = pcall(dofile, vim.env.NVIM_TEST_ROOT .. "/tests/boots
 if ! (cd "$tmp/work" && nvim --headless --cmd "lua vim.opt.rtp:prepend(vim.env.NVIM_TEST_ROOT)" -u "$root/init.lua" -c "lua $bootstrap"); then
 	echo "tests/run.sh: the bootstrap failed (see above); rerun to resume" >&2
 	exit 2
+fi
+
+# --update is the only path that writes the committed lockfile, and only once the bootstrap's update has succeeded.
+if [ "$update" = 1 ]; then
+	cp "$tmp/config/nvim-test/nvim-pack-lock.json" "$root/nvim-pack-lock.json"
 fi
 
 # The file argument and the data path go through the environment, not into Lua source. A quote or a space in
