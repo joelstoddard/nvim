@@ -15,6 +15,11 @@ local diagnostic_signs = {
 	Info = "\u{f05a}",
 }
 
+-- vim.diagnostic.jump() only moves the cursor, so show the diagnostic it lands on.
+local function show_diagnostic()
+	vim.diagnostic.open_float({ scope = "cursor", focus = false })
+end
+
 vim.diagnostic.config({
 	signs = {
 		text = {
@@ -24,14 +29,11 @@ vim.diagnostic.config({
 			[vim.diagnostic.severity.HINT] = diagnostic_signs.Hint,
 		},
 	},
+	-- The built-in ]d and [d use this too, so they open the float on arrival.
+	jump = { on_jump = show_diagnostic },
 })
 
 -- Keymaps on attach -----------------------------------------------------------------------------
--- vim.diagnostic.jump() only moves the cursor, so show the diagnostic it lands on.
-local function show_diagnostic()
-	vim.diagnostic.open_float({ scope = "cursor", focus = false })
-end
-
 local function on_attach(event)
 	local client = vim.lsp.get_client_by_id(event.data.client_id)
 	if not client then
@@ -56,15 +58,6 @@ local function on_attach(event)
 	end, opts) -- goto definition in split
 	keymap("n", "<leader>ca", vim.lsp.buf.code_action, opts) -- Code actions
 	keymap("n", "<leader>rn", vim.lsp.buf.rename, opts) -- Rename symbol
-	keymap("n", "<leader>D", function()
-		vim.diagnostic.open_float({ scope = "line" })
-	end, opts) -- Line diagnostics (float); the built-in <C-w>d shows the cursor's, as <leader>d deletes without yanking
-	keymap("n", "<leader>pd", function()
-		vim.diagnostic.jump({ count = -1, on_jump = show_diagnostic })
-	end, opts) -- previous diagnostic
-	keymap("n", "<leader>nd", function()
-		vim.diagnostic.jump({ count = 1, on_jump = show_diagnostic })
-	end, opts) -- next diagnostic
 	keymap("n", "K", vim.lsp.buf.hover, opts) -- hover documentation
 
 	-- fzf-lua keymaps
