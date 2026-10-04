@@ -28,7 +28,9 @@ jobs:
         with:
           persist-credentials: false
       - uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      # restore, not cache: this job runs this week's unreviewed plugin code and must not be able to poison the
+      # shared cache that test.yml and future runs of this job trust.
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.local/share/nvim-test
           key: nvim-test-${{ runner.os }}-${{ hashFiles('nvim-pack-lock.json', 'lua/languages/*.lua') }}
@@ -54,7 +56,7 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
           echo "lockfile=$(base64 nvim-pack-lock.json | tr -d '\n')" >> "$GITHUB_OUTPUT"
-          echo "summary=$(perl -pe 's/\e\[[0-9;]*m//g' "$RUNNER_TEMP/suite.log" | grep -a -E 'Total number of cases|Fails \(|FAIL' | head -20 | base64 | tr -d '\n')" >> "$GITHUB_OUTPUT"
+          echo "summary=$(perl -pe 's/\e\[[0-9;]*m//g' "$RUNNER_TEMP/suite.log" | grep -a -o -E 'Total number of cases.*|Fails \(.*|FAIL.*' | head -20 | base64 | tr -d '\n')" >> "$GITHUB_OUTPUT"
 
   pr:
     needs: update
@@ -74,9 +76,12 @@ jobs:
         run: |
           echo "$LOCKFILE_B64" | base64 -d > /tmp/nvim-pack-lock.new.json
           valid=$(jq -n --slurpfile old nvim-pack-lock.json --slurpfile new /tmp/nvim-pack-lock.new.json '
-            ($old[0].plugins) as $o | ($new[0].plugins) as $n
-            | (($o | keys) == ($n | keys))
-              and (($o | keys) | map(($o[.] | del(.rev)) == ($n[.] | del(.rev))) | all)
+            ($old[0].plugins) as $o
+            | ($new|length)==1
+              and (($new[0]|keys)==["plugins"])
+              and (($o|keys) == ($new[0].plugins|keys))
+              and (($o|keys) | map(($o[.] | del(.rev)) == ($new[0].plugins[.] | del(.rev))) | all)
+              and ($new[0].plugins | all(.[]; .rev|type=="string" and test("^[0-9a-f]{40}$")))
           ')
           if [ "$valid" != "true" ]; then
             echo "::error::the updated lockfile changed more than plugin revisions; refusing to use it"
@@ -88,6 +93,9 @@ jobs:
           STATUS: ${{ needs.update.outputs.status }}
           SUMMARY_B64: ${{ needs.update.outputs.summary }}
         run: |
+          case "$STATUS" in
+            ''|*[!0-9]*) echo "::error::update job produced a non-numeric status: $STATUS"; exit 1 ;;
+          esac
           echo "$SUMMARY_B64" | base64 -d > "$RUNNER_TEMP/summary.log"
           sh .github/scripts/plugin-bump.sh "$STATUS" "$RUNNER_TEMP/summary.log" > "$RUNNER_TEMP/pr-body.md"
       - name: Open or update the draft PR
