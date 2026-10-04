@@ -56,9 +56,7 @@ local function on_attach(event)
 		vim.cmd("vsplit")
 		vim.lsp.buf.definition()
 	end, opts) -- goto definition in split
-	keymap("n", "<leader>ca", vim.lsp.buf.code_action, opts) -- Code actions
-	keymap("n", "<leader>rn", vim.lsp.buf.rename, opts) -- Rename symbol
-	keymap("n", "K", vim.lsp.buf.hover, opts) -- hover documentation
+	-- Hover, rename and code actions use nvim's built-in K, grn and gra.
 
 	-- fzf-lua keymaps
 	keymap("n", "<leader>fd", "<cmd>FzfLua lsp_finder<CR>", opts) -- LSP Finder (definition + references)
