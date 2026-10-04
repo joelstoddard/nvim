@@ -76,9 +76,11 @@ T["starts treesitter on a file outside git"] = function()
 	local dir = helpers.tempdir()
 	helpers.write(dir .. "/notes.py", "x = 1\n")
 	child = helpers.new_child({ cwd = dir, args = { "notes.py" } })
-	vim.uv.sleep(500)
+	-- vim.wait returns false when the time runs out, so a highlighter that never starts fails the test.
 	local active = child.lua([[
-		return vim.treesitter.highlighter.active[vim.api.nvim_get_current_buf()] ~= nil
+		return vim.wait(5000, function()
+			return vim.treesitter.highlighter.active[vim.api.nvim_get_current_buf()] ~= nil
+		end)
 	]])
 	expect.equality(active, true)
 end
