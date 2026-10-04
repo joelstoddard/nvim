@@ -61,12 +61,11 @@ vim.opt.diffopt:append("vertical") -- Vertical diff splits
 vim.opt.diffopt:append("algorithm:patience") -- Better diff algorithm
 vim.opt.diffopt:append("linematch:60") -- Better diff highlighting (smart line matching)
 
--- Set undo directory and ensure it exists
-local undodir = "~/.local/share/nvim/undodir" -- Undo directory path
-vim.opt.undodir = vim.fn.expand(undodir) -- Expand to full path
-local undodir_path = vim.fn.expand(undodir)
-if vim.fn.isdirectory(undodir_path) == 0 then
-	vim.fn.mkdir(undodir_path, "p") -- Create if not exists
+-- Undo files go in this instance's data folder, so another NVIM_APPNAME (nvim-prd, the tests) keeps its own.
+local undodir = vim.fn.stdpath("data") .. "/undodir"
+vim.opt.undodir = undodir
+if vim.fn.isdirectory(undodir) == 0 then
+	vim.fn.mkdir(undodir, "p")
 end
 
 -- Behavior Settings
