@@ -56,6 +56,21 @@ local function open_lua_with_server()
 	expect.equality(attached, true)
 end
 
+T["describes every keymap set for an LSP buffer"] = function()
+	open_lua_with_server()
+	local undescribed = child.lua([[
+		local out = {}
+		for _, map in ipairs(vim.api.nvim_buf_get_keymap(0, "n")) do
+			if (map.desc or "") == "" then
+				table.insert(out, map.lhs)
+			end
+		end
+		table.sort(out)
+		return out
+	]])
+	expect.equality(undescribed, {})
+end
+
 T["opens hover on K in an LSP buffer"] = function()
 	open_lua_with_server()
 	local hover = child.lua([[
