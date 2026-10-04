@@ -84,7 +84,7 @@ jobs:
               and ($new[0].plugins | all(.[]; .rev|type=="string" and test("^[0-9a-f]{40}$")))
           ')
           if [ "$valid" != "true" ]; then
-            echo "::error::the updated lockfile changed more than plugin revisions; refusing to use it"
+            echo "::error::the updated lockfile changed more than plugin revisions; refusing to use it. If a plugin's version or source changed in lua/plugins/init.lua, run sh tests/run.sh --update in a PR."
             exit 1
           fi
           mv /tmp/nvim-pack-lock.new.json nvim-pack-lock.json
