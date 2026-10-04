@@ -13,10 +13,6 @@ vim.keymap.set("n", "N", "Nzzzv", { desc = "Previous search result (centered)" }
 vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Half page down (centered)" })
 vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Half page up (centered)" })
 
--- Buffer navigation
-vim.keymap.set("n", "<leader>bn", "<Cmd>bnext<CR>", { desc = "Next buffer" })
-vim.keymap.set("n", "<leader>bp", "<Cmd>bprevious<CR>", { desc = "Previous buffer" })
-
 -- Window moves on Ctrl+h/j/k/l come from vim-tmux-navigator, which also crosses into tmux panes.
 
 -- Splits and resizing use the built-in <C-w> keys (v, s, +, -, <, >), which keeps <leader>s free for replace-word.
