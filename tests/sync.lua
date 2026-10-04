@@ -4,8 +4,9 @@
 return function(update, off)
 	local ok, err = pcall(update, nil, { target = "lockfile", force = true, offline = true })
 	local still_off = off()
-	if ok and #still_off > 0 then
-		ok, err = pcall(update, still_off, { target = "lockfile", force = true })
+	if not ok or #still_off > 0 then
+		-- An error does not name the plugins it affected, so with none off, every plugin goes online.
+		ok, err = pcall(update, #still_off > 0 and still_off or nil, { target = "lockfile", force = true })
 		still_off = off()
 	end
 	return ok, err, still_off
