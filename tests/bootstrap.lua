@@ -57,11 +57,12 @@ local updating = vim.env.NVIM_TEST_UPDATE == "1"
 
 -- The checkout's file, because vim.pack.add() has already written new plugins into the temporary copy.
 local committed = read_lock(vim.env.NVIM_TEST_ROOT .. "/nvim-pack-lock.json")
-local unlocked, stray, active_names = {}, {}, {}
+local unlocked, stray, active_names, active_src = {}, {}, {}, {}
 for _, plugin in ipairs(vim.pack.get(nil, { info = false })) do
 	local name = plugin.spec.name
 	if plugin.active then
 		active_names[name] = true
+		active_src[name] = plugin.spec.src
 		if not committed[name] then
 			table.insert(unlocked, name)
 		end
@@ -95,14 +96,14 @@ if #orphaned > 0 then
 	)
 end
 
--- vim.pack.add() already rewrote version, and update already rewrites src, in the temporary lockfile. Catch a
--- plugin changed in lua/plugins/init.lua without --update here, before the sync below copies it back unnoticed.
+-- Catch a plugin changed in lua/plugins/init.lua without --update, before the sync below copies it back unnoticed.
+-- vim.pack.add() has already rewritten version in the temporary lockfile, but src only changes there during the sync.
 if not updating then
 	local temp = read_lock(lock_path)
 	local outdated = {}
 	for name in pairs(active_names) do
-		local c, t = committed[name], temp[name]
-		if c.src ~= t.src or c.version ~= t.version then
+		local c = committed[name]
+		if c.src ~= active_src[name] or c.version ~= temp[name].version then
 			table.insert(outdated, name)
 		end
 	end
