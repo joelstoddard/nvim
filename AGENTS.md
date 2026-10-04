@@ -11,12 +11,16 @@ A Neovim 0.12 config. Plugins install with the built-in `vim.pack`. This repo is
 - **Test:** `sh tests/run.sh`, or `sh tests/run.sh tests/test_<area>.lua` for one file.
   - The first run installs every plugin, parser and Mason tool into `~/.local/share/nvim-test`, which takes several
     minutes. If it stops part-way (for example, a network drop), rerun it: finished items are kept.
-  - The test install keeps the plugin revisions from its first run. Delete `~/.local/share/nvim-test` to make the
-    next run reinstall at the latest versions the plugin list allows.
+  - The suite runs against the committed `nvim-pack-lock.json`: each run moves the test install's plugins to its
+    revisions. A plugin added to `lua/plugins/init.lua` must be pinned with `sh tests/run.sh --update`.
+  - `sh tests/run.sh --update` updates every plugin, rewrites `nvim-pack-lock.json`, then runs the suite. It is the
+    only command that changes the lockfile.
   - Do not start two first runs at the same time: they share that install.
   - Each test case starts its own nvim on this checkout's config, through `tests/helpers.lua`.
   - Mason checks its registry online about once a day. Offline, that check warns, and the startup test reports the
     warning.
+- **CI:** `.github/workflows/test.yml` runs both lint commands and the suite on every PR and every push to main. A
+  weekly workflow opens a draft `chore(deps): update plugins` PR, already tested against the new lockfile.
 
 ## Layout
 
@@ -35,3 +39,8 @@ A Neovim 0.12 config. Plugins install with the built-in `vim.pack`. This repo is
 - Test fixtures go in temporary folders outside the repo. yamlls skips validation for files under git-ignored
   folders, so a fixture there can pass for the wrong reason.
 - Never point a test or a worktree config at `~/.local/share/nvim`.
+- In the live editor, never run plain `vim.pack.update()`: it moves plugins past the lockfile and rewrites the
+  dotfiles copy. After a subtree pull, run `:PackSync`.
+- When removing a plugin, also delete its lockfile entry with `vim.pack.del()`, or `--update` keeps updating it.
+- One-off, after #19 merges: delete the untracked `~/personal/dotfiles/.config/nvim/nvim-pack-lock.json` before the
+  next subtree pull (the pull refuses to overwrite it), then run `:PackSync`.
