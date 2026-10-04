@@ -20,7 +20,9 @@ A Neovim 0.12 config. Plugins install with the built-in `vim.pack`. This repo is
   - Mason checks its registry online about once a day. Offline, that check warns, and the startup test reports the
     warning.
 - **CI:** `.github/workflows/test.yml` runs both lint commands and the suite on every PR and every push to main. A
-  weekly workflow opens a draft `chore(deps): update plugins` PR, already tested against the new lockfile.
+  weekly workflow opens a draft `chore(deps): update plugins` PR, already tested against the new lockfile. That
+  workflow needs "Allow GitHub Actions to create and approve pull requests" turned on (Settings → Actions → General),
+  or its PR step fails.
 
 ## Layout
 
