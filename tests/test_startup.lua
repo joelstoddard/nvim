@@ -63,6 +63,15 @@ T["keeps the checkout out of the test install's config folder"] = function()
 	expect.equality(config == root, false)
 end
 
+T["keeps undo files in the instance's own data folder"] = function()
+	child = helpers.new_child()
+	local undo = child.lua([[
+		local expected = vim.fn.stdpath("data") .. "/undodir"
+		return { vim.o.undodir == expected, vim.fn.isdirectory(expected) == 1, vim.o.undodir }
+	]])
+	expect.equality(undo, { true, true, undo[3] })
+end
+
 T["starts treesitter on a file outside git"] = function()
 	local dir = helpers.tempdir()
 	helpers.write(dir .. "/notes.py", "x = 1\n")
