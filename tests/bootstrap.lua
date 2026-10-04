@@ -57,14 +57,73 @@ local updating = vim.env.NVIM_TEST_UPDATE == "1"
 
 -- The checkout's file, because vim.pack.add() has already written new plugins into the temporary copy.
 local committed = read_lock(vim.env.NVIM_TEST_ROOT .. "/nvim-pack-lock.json")
-local unlocked = {}
+local unlocked, stray, active_names = {}, {}, {}
 for _, plugin in ipairs(vim.pack.get(nil, { info = false })) do
-	if plugin.active and not committed[plugin.spec.name] then
-		table.insert(unlocked, plugin.spec.name)
+	local name = plugin.spec.name
+	if plugin.active then
+		active_names[name] = true
+		if not committed[name] then
+			table.insert(unlocked, name)
+		end
+	elseif not committed[name] then
+		table.insert(stray, name)
 	end
 end
 if #unlocked > 0 and not updating then
 	fail("sync", "not in nvim-pack-lock.json, run sh tests/run.sh --update: " .. table.concat(unlocked, ", "))
+end
+
+-- lock_sync repairs any folder it finds on disk into the lockfile, so a plugin dropped from init.lua would come
+-- back via --update unless its leftover install is removed first. The test install is disposable.
+if #stray > 0 then
+	table.sort(stray)
+	vim.pack.del(stray)
+	io.stdout:write("bootstrap: removed stray plugins: " .. table.concat(stray, ", ") .. "\n")
+end
+
+local orphaned = {}
+for name in pairs(committed) do
+	if not active_names[name] then
+		table.insert(orphaned, name)
+	end
+end
+if #orphaned > 0 then
+	table.sort(orphaned)
+	fail(
+		"sync",
+		"in nvim-pack-lock.json but not in lua/plugins/init.lua, delete their entries: " .. table.concat(orphaned, ", ")
+	)
+end
+
+-- vim.pack.add() already rewrote version, and update already rewrites src, in the temporary lockfile. Catch a
+-- plugin changed in lua/plugins/init.lua without --update here, before the sync below copies it back unnoticed.
+if not updating then
+	local temp = read_lock(lock_path)
+	local outdated = {}
+	for name in pairs(active_names) do
+		local c, t = committed[name], temp[name]
+		if c.src ~= t.src or c.version ~= t.version then
+			table.insert(outdated, name)
+		end
+	end
+	if #outdated > 0 then
+		table.sort(outdated)
+		fail(
+			"sync",
+			"out of date with lua/plugins/init.lua, run sh tests/run.sh --update: " .. table.concat(outdated, ", ")
+		)
+	end
+end
+
+-- vim.pack logs each plugin's error to a file that is deleted on exit, so a sync or update failure folds its tail
+-- into the detail shown here.
+local function pack_log_tail()
+	local path = vim.fn.stdpath("log") .. "/nvim-pack.log"
+	local lines = vim.fn.filereadable(path) == 1 and vim.fn.readfile(path) or {}
+	if #lines == 0 then
+		return nil
+	end
+	return table.concat(lines, "\n", math.max(1, #lines - 19))
 end
 
 local function sync_detail(ok, err, off)
@@ -74,6 +133,10 @@ local function sync_detail(ok, err, off)
 	end
 	if #off > 0 then
 		table.insert(reasons, "off the lockfile: " .. table.concat(off, ", "))
+	end
+	local log = pack_log_tail()
+	if log then
+		table.insert(reasons, "nvim-pack.log (last 20 lines):\n" .. log)
 	end
 	return table.concat(reasons, "; ")
 end
