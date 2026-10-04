@@ -8,10 +8,9 @@ tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT INT TERM
 
 data="${XDG_DATA_HOME:-$HOME/.local/share}/nvim-test"
-mkdir -p "$tmp/config/nvim-test" "$tmp/state" "$tmp/cache" "$tmp/work" "$data"
-# vim.pack writes its lockfile in the config folder, so this link keeps that file in the test install. vim.pack
-# writes through the link and does not replace it.
-ln -s "$data/nvim-pack-lock.json" "$tmp/config/nvim-test/nvim-pack-lock.json"
+mkdir -p "$tmp/config/nvim-test" "$tmp/state" "$tmp/cache" "$tmp/work"
+# A copy, not a link: vim.pack writes this file, and a normal run must never change the committed lockfile.
+cp "$root/nvim-pack-lock.json" "$tmp/config/nvim-test/nvim-pack-lock.json"
 export NVIM_APPNAME=nvim-test NVIM_TEST_ROOT="$root" NVIM_TEST_DATA="$data"
 export XDG_CONFIG_HOME="$tmp/config" XDG_STATE_HOME="$tmp/state" XDG_CACHE_HOME="$tmp/cache"
 

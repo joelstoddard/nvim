@@ -30,6 +30,67 @@ if startup:find("[Ee]rror") then
 end
 io.stdout:write("bootstrap: plugins ready\n")
 
+local function read_lock(path)
+	return vim.json.decode(table.concat(vim.fn.readfile(path), "\n")).plugins
+end
+
+-- vim.pack.get() reports the lockfile's revision, not the checkout's, so ask git.
+local function head(path)
+	local res = vim.system({ "git", "-C", path, "rev-parse", "HEAD" }, { text = true }):wait()
+	return res.code == 0 and vim.trim(res.stdout) or nil
+end
+
+local function off_lock(lock)
+	local off = {}
+	for _, plugin in ipairs(vim.pack.get(nil, { info = false })) do
+		local want = lock[plugin.spec.name]
+		if plugin.active and (not want or head(plugin.path) ~= want.rev) then
+			table.insert(off, plugin.spec.name)
+		end
+	end
+	table.sort(off)
+	return off
+end
+
+local lock_path = vim.fn.stdpath("config") .. "/nvim-pack-lock.json"
+local updating = vim.env.NVIM_TEST_UPDATE == "1"
+
+-- The checkout's file, because vim.pack.add() has already written new plugins into the temporary copy.
+local committed = read_lock(vim.env.NVIM_TEST_ROOT .. "/nvim-pack-lock.json")
+local unlocked = {}
+for _, plugin in ipairs(vim.pack.get(nil, { info = false })) do
+	if plugin.active and not committed[plugin.spec.name] then
+		table.insert(unlocked, plugin.spec.name)
+	end
+end
+if #unlocked > 0 and not updating then
+	fail("sync", "not in nvim-pack-lock.json, run sh tests/run.sh --update: " .. table.concat(unlocked, ", "))
+end
+
+local function sync_detail(ok, err, off)
+	local reasons = {}
+	if not ok then
+		table.insert(reasons, "vim.pack.update failed: " .. tostring(err))
+	end
+	if #off > 0 then
+		table.insert(reasons, "off the lockfile: " .. table.concat(off, ", "))
+	end
+	return table.concat(reasons, "; ")
+end
+
+-- vim.pack.add() leaves a plugin that is already on disk at its old revision, so this moves each one to the lockfile.
+-- The install already holds every committed revision, so the sync runs offline and retries online only if needed.
+local synced, sync_err = pcall(vim.pack.update, nil, { target = "lockfile", force = true, offline = true })
+local off = off_lock(read_lock(lock_path))
+if synced and #off > 0 then
+	synced, sync_err = pcall(vim.pack.update, off, { target = "lockfile", force = true })
+	off = off_lock(read_lock(lock_path))
+end
+if not synced or #off > 0 then
+	fail("sync", sync_detail(synced, sync_err, off))
+end
+io.stdout:write("bootstrap: plugins on the lockfile\n")
+
 -- A second install() stops waiting on the config's startup install after 60 s, so this retries each parser that
 -- still fails to load. force is needed because install() counts a language as installed once its queries exist.
 local parsers = languages.parsers()
