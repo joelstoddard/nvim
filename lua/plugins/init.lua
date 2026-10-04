@@ -52,6 +52,11 @@ vim.pack.add({
 	{ src = gh("jake-stewart/multicursor.nvim"), version = "1.0" }, -- the stable branch; the repo has no release tags
 })
 
+-- Plain vim.pack.update() would move plugins past the committed lockfile and rewrite it in the dotfiles checkout.
+vim.api.nvim_create_user_command("PackSync", function()
+	vim.pack.update(nil, { target = "lockfile" })
+end, { desc = "Move plugins to the revisions in nvim-pack-lock.json" })
+
 -- Order matters: the colorscheme first, then mini.nvim's devicons mock before any plugin that draws icons.
 require("plugins.theme")
 require("plugins.mini-nvim")
