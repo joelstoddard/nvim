@@ -49,6 +49,7 @@ vim.pack.add({
 	gh("uga-rosa/ccc.nvim"),
 	gh("prismatic-koi/nvim-sops"),
 	gh("christoomey/vim-tmux-navigator"),
+	{ src = gh("jake-stewart/multicursor.nvim"), version = "1.0" }, -- the stable branch; the repo has no release tags
 })
 
 -- Order matters: the colorscheme first, then mini.nvim's devicons mock before any plugin that draws icons.
@@ -65,3 +66,4 @@ require("plugins.which-key")
 require("plugins.zen-mode")
 require("plugins.ccc-nvim")
 require("plugins.nvim-sops")
+require("plugins.multicursor-nvim")
