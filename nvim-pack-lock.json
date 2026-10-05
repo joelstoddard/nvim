@@ -22,7 +22,7 @@
       "src": "https://github.com/rafamadriz/friendly-snippets"
     },
     "fzf-lua": {
-      "rev": "d5c12c6d72ed84554f0f8dacb84f20da094b6a2d",
+      "rev": "c5e1465b6fc37a98a4b88d883f26050d663048b9",
       "src": "https://github.com/ibhagwan/fzf-lua"
     },
     "lualine.nvim": {
@@ -44,7 +44,7 @@
       "version": "'1.0'"
     },
     "nvim-lspconfig": {
-      "rev": "3e8d598d3b5f8338a41699c436e5fa11d2666cf0",
+      "rev": "910f0c4d46aa186641518395bc7e6fffb4d23baf",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-sops": {
